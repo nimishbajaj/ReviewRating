@@ -17,35 +17,17 @@ corpus[[1]]$content
 
 
 frequencies = DocumentTermMatrix(corpus)
-sparse = removeSparseTerms(frequencies, 0.995)
+sparse = removeSparseTerms(frequencies, 0.997)
 #sparse = frequencies
 tweetsSparse = as.data.frame(as.matrix(sparse))
 colnames(tweetsSparse) = make.names(colnames(tweetsSparse))
 tweetsSparse$Avg = tweets$Avg
 
-
+write.csv(tweetsSparse, "tweetsSparse.csv")
 set.seed(123)
-split = sample.split(tweetsSparse$Avg, SplitRatio = 0.9)
-trainSparseTree = subset(tweetsSparse, split==TRUE)
-testSparseTree = subset(tweetsSparse, split==FALSE)
+split = sample.split(tweetsSparse$Avg, SplitRatio = 0.7)
+train = subset(tweetsSparse, split==TRUE)
+test = subset(tweetsSparse, split==FALSE)
+write.csv(train, "trainCSV.csv")
+write.csv(test, "testCSV.csv")
 
-# Random forest model
-
-library(randomForest)
-set.seed(123)
-
-tweetRF = randomForest(Avg ~ ., data=trainSparseTree)
-
-# Make predictions:
-predictRF = predict(tweetRF, newdata=testSparseTree)
-
-table(testSparseTree$Avg, predictRF)
-
-# Accuracy:
-mat = as.matrix(table(testSparseTree$Avg, predictRF))
-sum(diag(mat))/sum(mat)
-
-#average rating
-13*1 + 66*2 + 259*3 + 17*4
-990/sum(mat)
-mean(round2)
